@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Weather Station Dashboard</title>
+    <!-- Stylesheets -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Optional: Firebase Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-center text-blue-700">IoT Weather Station Dashboard</h1>
+            <p class="text-center text-gray-600">Last updated: <span id="lastUpdated">Loading...</span></p>
+        </header>
+
+        <!-- Current Conditions Panel -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Current Conditions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Temperature -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-center mb-2">Temperature</h3>
+                    <div class="flex justify-center">
+                        <div class="gauge" id="temperature-gauge">
+                            <div class="gauge__body">
+                                <div class="gauge__fill"></div>
+                                <div class="gauge__cover">
+                                    <span id="temperature-value">--</span>°C
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Humidity -->
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-center mb-2">Humidity</h3>
+                    <div class="flex justify-center">
+                        <div class="gauge" id="humidity-gauge">
+                            <div class="gauge__body">
+                                <div class="gauge__fill"></div>
+                                <div class="gauge__cover">
+                                    <span id="humidity-value">--</span>%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pressure -->
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-center mb-2">Pressure</h3>
+                    <div class="flex justify-center">
+                        <div class="gauge" id="pressure-gauge">
+                            <div class="gauge__body">
+                                <div class="gauge__fill"></div>
+                                <div class="gauge__cover">
+                                    <span id="pressure-value">--</span>
+                                    <span class="text-sm">hPa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Wind -->
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-center mb-2">Wind</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="text-2xl font-bold mb-2">
+                            <span id="wind-speed-value">--</span> km/h
+                        </div>
+                        <div class="wind-direction-indicator">
+                            <div class="compass-marks">
+                                <div class="compass-mark n"></div>
+                                <div class="compass-mark e"></div>
+                                <div class="compass-mark s"></div>
+                                <div class="compass-mark w"></div>
+                                
+                                <div class="compass-label n">N</div>
+                                <div class="compass-label e">E</div>
+                                <div class="compass-label s">S</div>
+                                <div class="compass-label w">W</div>
+                            </div>
+                            <div class="wind-arrow" id="wind-direction-arrow"></div>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            Direction: <span id="wind-direction-value">--</span>°
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Light Level -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Light Level</h2>
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                <div id="light-level-bar" class="bg-yellow-400 h-4 rounded-full" style="width: 0%"></div>
+            </div>
+            <p class="text-center"><span id="light-level-value">--</span>% light level</p>
+        </div>
+        
+        <!-- Historical Data Charts -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Historical Data</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-medium mb-2">Temperature & Humidity (24h)</h3>
+                    <div class="bg-gray-50 p-2 rounded">
+                        <canvas id="tempHumidityChart" height="250"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium mb-2">Pressure & Wind Speed (24h)</h3>
+                    <div class="bg-gray-50 p-2 rounded">
+                        <canvas id="pressureWindChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Station Info -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Station Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Location</h3>
+                    <p class="text-gray-700">Latitude: <span id="latitude">--</span>° N</p>
+                    <p class="text-gray-700">Longitude: <span id="longitude">--</span>° W</p>
+                    <p class="text-gray-700">Elevation: <span id="elevation">--</span> m</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Status</h3>
+                    <p class="text-gray-700">Battery: <span id="battery-level">--</span>%</p>
+                    <p class="text-gray-700">Signal Strength: <span id="signal-strength">--</span> dBm</p>
+                    <p class="text-gray-700">Uptime: <span id="uptime">--</span></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Forecast</h3>
+                    <p class="text-gray-700" id="forecast-text">No forecast data available</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

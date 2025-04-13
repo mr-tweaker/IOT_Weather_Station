@@ -1,0 +1,136 @@
+/* Gauge Styles */
+.gauge {
+    width: 100%;
+    max-width: 250px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 32px;
+    color: #004033;
+}
+
+.gauge__body {
+    width: 100%;
+    height: 0;
+    padding-bottom: 50%;
+    background: #b4c0c0;
+    position: relative;
+    border-top-left-radius: 100% 200%;
+    border-top-right-radius: 100% 200%;
+    overflow: hidden;
+}
+
+.gauge__fill {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: inherit;
+    height: 100%;
+    background: #009578;
+    transform-origin: center top;
+    transform: rotate(0.5turn);
+    transition: transform 0.2s ease-out;
+}
+
+.gauge__cover {
+    width: 75%;
+    height: 150%;
+    background: #ffffff;
+    border-radius: 50%;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 25%;
+    box-sizing: border-box;
+}
+
+/* Wind Direction Indicator Styles */
+.wind-direction-indicator {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wind-arrow {
+    position: absolute;
+    width: 10px;
+    height: 50px;
+    background-color: #3b82f6;
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    transform-origin: center 75%;
+    transition: transform 0.5s ease;
+}
+
+.compass-marks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.compass-mark {
+    position: absolute;
+    width: 2px;
+    height: 10px;
+    background: #000;
+    left: 50%;
+    transform-origin: bottom center;
+}
+
+.compass-mark.n {
+    top: 0;
+    transform: translateX(-50%);
+}
+
+.compass-mark.e {
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.compass-mark.s {
+    bottom: 0;
+    transform: translateX(-50%);
+}
+
+.compass-mark.w {
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.compass-label {
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.compass-label.n {
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.compass-label.e {
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+}
+
+.compass-label.s {
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.compass-label.w {
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+}
